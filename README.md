@@ -3,7 +3,7 @@ __oson.annotation__ Language
       
 Abstract      
 --------     
-__oson.annotation__ is small language which is used in language [__oson__](https://github.com/sstshenshutao/oson).   
+__oson.annotation__ is a small language which is used in the language [__oson__](https://github.com/sstshenshutao/oson).   
       
 >__oson__ is a micro-language to describe the schema of JSON. It allows you to write down the JSON and the schema of JSON inside only one file(with annotation). oson is a subset of JSON-Schema, so it can be compiled to JSON-schema, it is inspired by "orderly" and annotation.      
       
