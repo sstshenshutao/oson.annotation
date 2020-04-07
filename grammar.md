@@ -23,7 +23,7 @@
         NULL_TYPE  
         ANY_TYPE  
         STRING_TYPE optionalRange optionalPerlRegex  
-        JSON_TYPE optionalExtraProperties  
+        JSON_TYPE  
         '\*' optionalTypeTuple  
           
     optionalTypeTuple  
@@ -53,10 +53,6 @@
         REGEX  
         #nothing  
           
-    optionalExtraProperties  
-        '\`' json_object '\`'  
-        #nothing  
-          
 ## ------------------- the grammar of JSON ---------------  
       
       
@@ -67,8 +63,6 @@
     json_value  
         json_string  
         json_number  
-        json_object  
-        json_array  
         TRUE  
         FALSE  
         NULL  

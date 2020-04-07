@@ -9,16 +9,16 @@ EXP                         (?:{E}{DIGITS})
 E                           [eE][+-]?
 HEX_DIGIT                   [0-9a-f]
 NUMBER                      (?:{INT}{FRAC}{EXP}|{INT}{EXP}|{INT}{FRAC}|{INT})
-UNESCAPEDCHAR               [ -!#-\[\]-~]
-ESCAPEDCHAR                 \\["\\bfnrt/]
-UNICODECHAR                 \\u{HEX_DIGIT}{HEX_DIGIT}{HEX_DIGIT}{HEX_DIGIT}
-CHAR                        {UNESCAPEDCHAR}|{ESCAPEDCHAR}|{UNICODECHAR}
-CHARS                       {CHAR}+
-DBL_QUOTE                   ["]
+MODIFIED_UNESCAPED_CHAR     [ -&\(-\[\]-~]
+MODIFIED_ESCAPED_CHAR       \\['\\bfnrt/]
+UNICODE_CHAR                \\u{HEX_DIGIT}{HEX_DIGIT}{HEX_DIGIT}{HEX_DIGIT}
+MODIFIED_CHAR               {MODIFIED_UNESCAPED_CHAR}|{MODIFIED_ESCAPED_CHAR}|{UNICODE_CHAR}
+MODIFIED_CHARS              {MODIFIED_CHAR}+
+QUOTE                       [']
 
 
 %%
-{DBL_QUOTE}{DBL_QUOTE}|{DBL_QUOTE}{CHARS}{DBL_QUOTE}      return 'STRING_LIT'
+{QUOTE}{QUOTE}|{QUOTE}{MODIFIED_CHARS}{QUOTE}           return 'STRING_LIT'
 {NUMBER}                                                   return 'NUMBER_LIT'
 "true"                                                return 'TRUE'
 "false"                                            return 'FALSE'
@@ -48,7 +48,6 @@ DBL_QUOTE                   ["]
 /lex
 
 %token STRING_LIT NUMBER_LIT
-%token CHAR
 %token INTEGER_TYPE NUMBER_TYPE BOOLEAN_TYPE NULL_TYPE ANY_TYPE STRING_TYPE JSON_TYPE
 %token TRUE FALSE NULL
 %left COMMA
@@ -121,10 +120,9 @@ basicTypePrefix
             $$ = new yy.Node("string",$2,[]);
             yy.Node.addOptional($$,$3);
         }
-    |JSON_TYPE optionalExtraProperties
+    |JSON_TYPE
         {
             $$ = new yy.Node("json",undefined,[]);
-            yy.Node.addOptional($$,$2);
         }
     |'*' optionalTypeTuple
         {
@@ -195,14 +193,6 @@ optionalPerlRegex
     }
     |
     ;
-optionalExtraProperties
-    :'`' json_object '`'
-    {
-        $$ = {optionalExtraProperties:JSON.parse($2)}
-    }
-    |
-    ;
-
 
 
 elements
@@ -219,10 +209,6 @@ json_value
     :json_string
     {$$ = $1;}
     |json_number
-    {$$ = $1;}
-    |json_object
-    {$$ = $1;}
-    |json_array
     {$$ = $1;}
     |TRUE
     {$$ = $1;}
@@ -245,16 +231,6 @@ json_array
         $$ = `[ ${$2} ]`
     }
     ;
-json_object
-    :'{' '}'
-    {
-        $$ = `{}`
-    }
-    |'{' members '}'
-    {
-        $$ = `{ ${$2} }`
-    }
-    ;
 members
     :pair
     {
@@ -273,5 +249,8 @@ pair
     ;
 json_string
     :STRING_LIT
-    { $$ = $1;}
+    {
+        //change '' to ""
+        $$ = "\""+$1.slice(1,$1.length-1)+"\"";
+    }
     ;
